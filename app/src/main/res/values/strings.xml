@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Vyom Empire</string>
+    <string name="welcome_message">Welcome to Vyom Empire!</string>
+    <string name="exit_message">Thank you for using Vyom Empire. See you next time!</string>
+</resources>
