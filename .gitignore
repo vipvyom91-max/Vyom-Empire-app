@@ -1,0 +1,45 @@
+# Android project files to ignore
+
+# Built application files
+*.apk
+*.ap_ 
+*.dex
+*.class
+
+# Java class files
+*.class
+
+# Java .jar files
+*.jar
+
+# Log files
+*.log
+
+# Local configuration file (sdk path, etc)
+local.properties
+
+# Android Studio Navigation database
+.navigation
+
+# Android Studio captures folder
+captures/
+
+# External native build folder generated in Android Studio 2.2 and later
+.externalNativeBuild/
+
+# IntelliJ IDEA files
+.idea/
+
+# Gradle files
+.gradle/
+
+# Support for the build process
+build/
+
+# Gradle wrapper files
+gradle-wrapper.jar
+gradle-wrapper.properties
+
+# Other files
+.DS_Store
+*.iml
