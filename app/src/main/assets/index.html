@@ -235,3 +235,122 @@
 </style>
 </head>
 <body>
+
+<!-- LOGO SVG TEMPLATE (referenced via <use>) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="goldGrad" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#f5c542"/>
+      <stop offset="1" stop-color="#ffdf7a"/>
+    </linearGradient>
+    <symbol id="ve-logo" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="44" fill="none" stroke="url(#goldGrad)" stroke-width="4"/>
+      <text x="50" y="56" text-anchor="middle" font-family="Georgia,serif" font-weight="700"
+            font-size="32" fill="url(#goldGrad)">VE</text>
+      <text x="50" y="78" text-anchor="middle" font-family="-apple-system,sans-serif"
+            font-size="7" letter-spacing="2" fill="#9aa0b8">VYOM EMPIRE</text>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- NAV -->
+<header class="nav">
+  <svg width="28" height="28"><use href="#ve-logo"/></svg>
+  <div class="brand">
+    <div>
+      <div class="name">Vyom Empire</div>
+      <div class="sub">BUILD&middot;LEAD&middot;CONQUER</div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+  <button class="icon-btn" id="aiBtn" title="AI Coach (a)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+      <circle cx="12" cy="12" r="4"/>
+    </svg>
+  </button>
+  <button class="icon-btn" id="settingsBtn" title="Settings (,)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.07.34.36.59.7.59H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+    </svg>
+  </button>
+</header>
+
+<main class="wrap">
+
+  <!-- HERO -->
+  <section class="hero">
+    <svg width="72" height="72"><use href="#ve-logo"/></svg>
+    <h1>Vyom Empire</h1>
+    <div class="tag">Forge The Legend</div>
+    <div class="level-row">
+      <span class="level-badge" id="levelBadge">LVL 1</span>
+      <div class="xp-wrap">
+        <div class="xp-bar"><div class="xp-fill" id="xpFill" style="width:0%"></div></div>
+        <div class="xp-text" id="xpText">0 / 100 XP</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WAR ROOM -->
+  <section class="section">
+    <div class="section-h"><span>War Room</span><span class="count" id="warDate"></span></div>
+    <div class="war">
+      <div class="stat"><div class="v" id="streakV">0</div><div class="k">Day Streak</div></div>
+      <div class="stat"><div class="v" id="doneV">0</div><div class="k">Steps Done</div></div>
+      <div class="stat"><div class="v" id="xpV">0</div><div class="k">Total XP</div></div>
+    </div>
+    <div class="card" style="margin-top:10px">
+      <h3>Today's Focus</h3>
+      <p id="focusText">Tap a step below to begin. Consistency &gt; intensity.</p>
+      <div class="row">
+        <span class="pill p1">DAILY CHECK-IN</span>
+        <button class="btn" id="checkinBtn">Check In</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- RINGS -->
+  <section class="section">
+    <div class="section-h"><span>Daily Rings</span></div>
+    <div class="card">
+      <div class="rings">
+        <div class="ring">
+          <svg><circle cx="48" cy="48" r="40" stroke="rgba(255,255,255,.06)" stroke-width="8" fill="none"/>
+               <circle id="ringMind" cx="48" cy="48" r="40" stroke="url(#goldGrad)" stroke-width="8" fill="none"
+                       stroke-dasharray="251.3" stroke-dashoffset="251.3" stroke-linecap="round"/></svg>
+          <div class="lbl">Mind<span>Read 30m</span></div>
+        </div>
+        <div class="ring">
+          <svg><circle cx="48" cy="48" r="40" stroke="rgba(255,255,255,.06)" stroke-width="8" fill="none"/>
+               <circle id="ringBody" cx="48" cy="48" r="40" stroke="#3ddc97" stroke-width="8" fill="none"
+                       stroke-dasharray="251.3" stroke-dashoffset="251.3" stroke-linecap="round"/></svg>
+          <div class="lbl">Body<span>Train 45m</span></div>
+        </div>
+        <div class="ring">
+          <svg><circle cx="48" cy="48" r="40" stroke="rgba(255,255,255,.06)" stroke-width="8" fill="none"/>
+               <circle id="ringBuild" cx="48" cy="48" r="40" stroke="#22e0ff" stroke-width="8" fill="none"
+                       stroke-dasharray="251.3" stroke-dashoffset="251.3" stroke-linecap="round"/></svg>
+          <div class="lbl">Build<span>Ship 1</span></div>
+        </div>
+      </div>
+      <div class="row" style="justify-content:center;margin-top:14px;gap:6px">
+        <button class="btn ghost" data-ring="ringMind">+Mind</button>
+        <button class="btn ghost" data-ring="ringBody">+Body</button>
+        <button class="btn ghost" data-ring="ringBuild">+Build</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 30-DAY HEATMAP -->
+  <section class="section">
+    <div class="section-h"><span>30-Day Activity</span></div>
+    <div class="card"><div class="heatmap" id="heatmap"></div></div>
+  </section>
+
+  <!-- 22 STAGES -->
+  <section class="section">
+    <div class="section-h"><span>The 22 Stages</span><span class="count" id="stageProgress">0/22</span></div>
+    <div class="grid" id="stages"></div>
+  </section>
