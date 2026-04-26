@@ -523,3 +523,176 @@ const STAGES = [
   {p:2,t:"Empire Scaling",d:"Cross ₹1L/mo recurring. Reinvest 50% into growth."},
   {p:2,t:"Legacy Building",d:"Teach what you learned. Lift others. Compound forever."}
 ];
+
+const QUOTES = [
+  {q:"Discipline is choosing between what you want now and what you want most.",a:"Augusta F. Kantra"},
+  {q:"Hard work beats talent when talent doesn't work hard.",a:"Tim Notke"},
+  {q:"You don't rise to the level of your goals. You fall to the level of your systems.",a:"James Clear"},
+  {q:"The man who moves a mountain begins by carrying away small stones.",a:"Confucius"},
+  {q:"Either you run the day or the day runs you.",a:"Jim Rohn"},
+  {q:"What you do every day matters more than what you do once in a while.",a:"Gretchen Rubin"},
+  {q:"The cave you fear to enter holds the treasure you seek.",a:"Joseph Campbell"}
+];
+
+const RULES = [
+  "No zero days. Touch the empire daily.",
+  "Energy first, then everything else.",
+  "Build in public. Ship before perfect.",
+  "Money follows mastery. Master one thing.",
+  "Compound is the only cheat code.",
+  "Output > consumption. Always.",
+  "Choose hard now. Pay easy later.",
+  "Surround yourself with builders, not blamers."
+];
+
+const ROUTINE = [
+  {t:"5:30",x:"Wake. Hydrate. No phone."},
+  {t:"6:00",x:"Train. Body before mind."},
+  {t:"7:30",x:"Cold shower. Healthy breakfast."},
+  {t:"8:00",x:"Deep work block #1 (90m)"},
+  {t:"10:00",x:"Read 30m. Sunlight 10m."},
+  {t:"11:00",x:"Deep work block #2"},
+  {t:"13:00",x:"Lunch + walk."},
+  {t:"15:00",x:"Calls / shallow work."},
+  {t:"17:00",x:"Ship + review the day."},
+  {t:"19:00",x:"Family / dinner / no screens."},
+  {t:"21:30",x:"Read. Plan tomorrow."},
+  {t:"22:30",x:"Sleep. Recovery is growth."}
+];
+
+const ACHIEVEMENTS = [
+  {id:"first_step",ico:"✨",t:"First Step"},
+  {id:"streak_3",ico:"🔥",t:"3-Day Streak"},
+  {id:"streak_7",ico:"⚡",t:"Week Warrior"},
+  {id:"streak_30",ico:"👑",t:"Crown Holder"},
+  {id:"phase1",ico:"🏆",t:"Phase 1 Done"},
+  {id:"phase2",ico:"💎",t:"Empire Built"},
+  {id:"checkin_10",ico:"✅",t:"10 Check-ins"},
+  {id:"all_22",ico:"🌟",t:"Legendary"}
+];
+
+const MILESTONES = [
+  {n:"₹1 Lakh / month",v:100000},
+  {n:"₹5 Lakh / month",v:500000},
+  {n:"₹10 Lakh / month",v:1000000},
+  {n:"₹25 Lakh / month",v:2500000},
+  {n:"₹1 Crore / month",v:10000000}
+];
+
+/* ---------- STATE ---------- */
+const LS = {
+  apiKey:"ve3_apikey", name:"ve3_name", done:"ve3_done", streak:"ve3_streak",
+  last:"ve3_last", xp:"ve3_xp", checkins:"ve3_checkins",
+  rings:"ve3_rings", revenue:"ve3_revenue", reviews:"ve3_reviews", chat:"ve3_chat"
+};
+const get = (k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}};
+const set = (k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+
+const state = {
+  apiKey: get(LS.apiKey,""),
+  name:   get(LS.name,"Vyom Thakur"),
+  done:   get(LS.done,[]),
+  streak: get(LS.streak,0),
+  last:   get(LS.last,""),
+  xp:     get(LS.xp,0),
+  checkins:get(LS.checkins,[]),
+  rings:  get(LS.rings,{ringMind:0,ringBody:0,ringBuild:0,date:""}),
+  revenue:get(LS.revenue,0),
+  chat:   get(LS.chat,[])
+};
+
+/* reset rings if date changed */
+const today = new Date().toISOString().slice(0,10);
+if(state.rings.date!==today){state.rings={ringMind:0,ringBody:0,ringBuild:0,date:today};set(LS.rings,state.rings)}
+
+/* ---------- UTIL ---------- */
+const $ = s=>document.querySelector(s);
+const $$ = s=>document.querySelectorAll(s);
+function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),1800)}
+function beep(freq=600,dur=120){
+  try{
+    const ctx=new (window.AudioContext||window.webkitAudioContext)();
+    const o=ctx.createOscillator(),g=ctx.createGain();
+    o.connect(g);g.connect(ctx.destination);
+    o.frequency.value=freq;o.type="sine";
+    g.gain.setValueAtTime(.0001,ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(.2,ctx.currentTime+.01);
+    g.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+dur/1000);
+    o.start();o.stop(ctx.currentTime+dur/1000);
+  }catch(e){}
+}
+function level(xp){return Math.floor(xp/100)+1}
+function xpInLevel(xp){return xp%100}
+function openModal(id){$("#"+id).classList.add("open")}
+function closeModal(id){$("#"+id).classList.remove("open")}
+
+/* ---------- CONFETTI ---------- */
+const cc=$("#confetti"),ccx=cc.getContext("2d");
+function fitConfetti(){cc.width=innerWidth;cc.height=innerHeight}
+fitConfetti();addEventListener("resize",fitConfetti);
+function confetti(){
+  const parts=[];const colors=["#f5c542","#22e0ff","#3ddc97","#ffdf7a"];
+  for(let i=0;i<80;i++)parts.push({
+    x:innerWidth/2,y:innerHeight/2,
+    vx:(Math.random()-.5)*12,vy:(Math.random()-.5)*12-4,
+    s:Math.random()*6+3,c:colors[i%colors.length],
+    a:1,r:Math.random()*Math.PI
+  });
+  let f=0;
+  (function tick(){
+    f++;ccx.clearRect(0,0,cc.width,cc.height);
+    parts.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;p.vy+=.3;p.a-=.012;p.r+=.1;
+      ccx.save();ccx.translate(p.x,p.y);ccx.rotate(p.r);
+      ccx.globalAlpha=Math.max(0,p.a);ccx.fillStyle=p.c;
+      ccx.fillRect(-p.s/2,-p.s/2,p.s,p.s);ccx.restore();
+    });
+    if(f<120)requestAnimationFrame(tick);else ccx.clearRect(0,0,cc.width,cc.height);
+  })();
+}
+
+/* ---------- RENDER ---------- */
+function renderHero(){
+  const lv=level(state.xp), inLv=xpInLevel(state.xp);
+  $("#levelBadge").textContent="LVL "+lv;
+  $("#xpFill").style.width=inLv+"%";
+  $("#xpText").textContent=inLv+" / 100 XP · Total "+state.xp;
+  $("#holoLvl").textContent="LVL "+lv;
+  $("#holoStat").textContent=state.done.length+" STEPS · "+state.xp+" XP · "+state.streak+" DAYS";
+}
+
+function renderWar(){
+  $("#warDate").textContent=new Date().toLocaleDateString("en-IN",{weekday:"short",day:"numeric",month:"short"});
+  $("#streakV").textContent=state.streak;
+  $("#doneV").textContent=state.done.length;
+  $("#xpV").textContent=state.xp;
+  const next=STAGES.findIndex((s,i)=>!state.done.includes(i));
+  $("#focusText").textContent=next>=0?
+    "Next: "+STAGES[next].t+" — "+STAGES[next].d:
+    "All 22 stages completed. You are the empire.";
+}
+
+function renderStages(){
+  const wrap=$("#stages");wrap.innerHTML="";
+  STAGES.forEach((s,i)=>{
+    const isDone=state.done.includes(i);
+    const card=document.createElement("div");
+    card.className="card p"+s.p;
+    card.innerHTML=`
+      <div class="num">STAGE ${String(i+1).padStart(2,"0")}</div>
+      <h3>${s.t}</h3>
+      <p>${s.d}</p>
+      <div class="row">
+        <span class="pill ${isDone?'done':'p'+s.p}">${isDone?'✓ DONE':'PHASE '+s.p}</span>
+        <button class="btn ${isDone?'done':(s.p===2?'cyan':'')}" data-step="${i}" ${isDone?'disabled':''}>
+          ${isDone?'Completed':'Mark Complete'}
+        </button>
+      </div>`;
+    wrap.appendChild(card);
+  });
+  $("#stageProgress").textContent=state.done.length+"/22";
+  $$("button[data-step]").forEach(b=>{
+    if(b.disabled)return;
+    b.onclick=()=>completeStep(parseInt(b.dataset.step,10));
+  });
+}
