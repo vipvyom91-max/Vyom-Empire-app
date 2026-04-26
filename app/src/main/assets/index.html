@@ -696,3 +696,304 @@ function renderStages(){
     b.onclick=()=>completeStep(parseInt(b.dataset.step,10));
   });
 }
+
+function renderHeatmap(){
+  const wrap=$("#heatmap");wrap.innerHTML="";
+  const set=new Set(state.checkins);
+  const now=new Date();
+  for(let i=29;i>=0;i--){
+    const d=new Date(now);d.setDate(d.getDate()-i);
+    const key=d.toISOString().slice(0,10);
+    const c=document.createElement("div");c.className="hm-cell";
+    if(set.has(key)){
+      const lv=Math.min(4,1+(state.done.length>>2));
+      c.className="hm-cell l"+lv;
+    }
+    c.title=key;
+    wrap.appendChild(c);
+  }
+}
+
+function renderMilestones(){
+  const w=$("#milestones");w.innerHTML="";
+  MILESTONES.forEach(m=>{
+    const hit=state.revenue>=m.v;
+    const el=document.createElement("div");
+    el.className="ms"+(hit?" hit":"");
+    el.innerHTML=`<div class="dot"></div><div class="name">${m.n}</div><div class="amt">${hit?'✓':'—'}</div>`;
+    w.appendChild(el);
+  });
+}
+
+function renderAch(){
+  const w=$("#achGrid");w.innerHTML="";
+  const u=unlockedAch();
+  ACHIEVEMENTS.forEach(a=>{
+    const el=document.createElement("div");
+    el.className="ach"+(u.has(a.id)?" unlocked":"");
+    el.innerHTML=`<div><div class="ico">${a.ico}</div>${a.t}</div>`;
+    w.appendChild(el);
+  });
+}
+function unlockedAch(){
+  const u=new Set();
+  if(state.done.length>=1)u.add("first_step");
+  if(state.streak>=3)u.add("streak_3");
+  if(state.streak>=7)u.add("streak_7");
+  if(state.streak>=30)u.add("streak_30");
+  if(state.done.filter(i=>STAGES[i]&&STAGES[i].p===1).length>=12)u.add("phase1");
+  if(state.done.filter(i=>STAGES[i]&&STAGES[i].p===2).length>=10)u.add("phase2");
+  if(state.checkins.length>=10)u.add("checkin_10");
+  if(state.done.length>=22)u.add("all_22");
+  return u;
+}
+
+function renderRoutine(){
+  $("#routineCard").innerHTML=ROUTINE.map(r=>
+    `<div class="routine-item"><div class="t">${r.t}</div><div>${r.x}</div></div>`).join("");
+}
+
+function renderQuote(){
+  const q=QUOTES[Math.floor(Math.random()*QUOTES.length)];
+  $("#quoteText").textContent=q.q;$("#quoteAuth").textContent="— "+q.a;
+}
+
+function renderRules(){
+  $("#rulesList").innerHTML=RULES.map(r=>`<li>${r}</li>`).join("");
+}
+
+function renderRings(){
+  const targets={ringMind:30,ringBody:45,ringBuild:1};
+  const C=2*Math.PI*40;
+  Object.keys(targets).forEach(k=>{
+    const pct=Math.min(1,state.rings[k]/targets[k]);
+    const el=document.getElementById(k);
+    if(el)el.style.strokeDashoffset=(C*(1-pct)).toFixed(2);
+  });
+}
+
+function renderSkillMap(){
+  const c=$("#skillCanvas"),x=c.getContext("2d");
+  const dpr=window.devicePixelRatio||1;
+  const w=c.clientWidth,h=200;
+  c.width=w*dpr;c.height=h*dpr;x.scale(dpr,dpr);
+  const nodes=[
+    {x:w*.1,y:100,t:"Mind",done:state.done.length>=1},
+    {x:w*.3,y:50, t:"Body",done:state.done.length>=3},
+    {x:w*.3,y:150,t:"Read",done:state.done.length>=4},
+    {x:w*.55,y:100,t:"Skill",done:state.done.length>=5},
+    {x:w*.78,y:50, t:"Brand",done:state.done.length>=11},
+    {x:w*.78,y:150,t:"Ship",done:state.done.length>=12},
+    {x:w*.95,y:100,t:"Empire",done:state.done.length>=22}
+  ];
+  const links=[[0,1],[0,2],[1,3],[2,3],[3,4],[3,5],[4,6],[5,6]];
+  x.strokeStyle="rgba(245,197,66,.3)";x.lineWidth=1;
+  links.forEach(l=>{x.beginPath();x.moveTo(nodes[l[0]].x,nodes[l[0]].y);x.lineTo(nodes[l[1]].x,nodes[l[1]].y);x.stroke()});
+  nodes.forEach(n=>{
+    x.beginPath();x.arc(n.x,n.y,18,0,Math.PI*2);
+    x.fillStyle=n.done?"#f5c542":"rgba(255,255,255,.08)";x.fill();
+    x.fillStyle=n.done?"#1a1300":"#9aa0b8";
+    x.font="bold 10px -apple-system,sans-serif";x.textAlign="center";x.textBaseline="middle";
+    x.fillText(n.t,n.x,n.y);
+  });
+}
+
+function renderAll(){
+  renderHero();renderWar();renderStages();renderHeatmap();
+  renderMilestones();renderAch();renderRoutine();renderQuote();
+  renderRules();renderRings();renderSkillMap();
+}
+
+/* ---------- ACTIONS ---------- */
+function completeStep(i){
+  if(state.done.includes(i))return;
+  state.done.push(i);
+  state.xp+=50;
+  set(LS.done,state.done);set(LS.xp,state.xp);
+  beep(800);confetti();toast("Stage cleared. +50 XP");
+  renderAll();
+}
+
+function checkIn(){
+  if(state.checkins.includes(today)){toast("Already checked in today");return}
+  state.checkins.push(today);
+  const y=new Date(Date.now()-86400000).toISOString().slice(0,10);
+  state.streak = state.last===y || state.last===today ? state.streak+1 : 1;
+  state.last=today;state.xp+=10;
+  set(LS.checkins,state.checkins);set(LS.streak,state.streak);
+  set(LS.last,state.last);set(LS.xp,state.xp);
+  beep(900,80);toast("Checked in! +10 XP · Streak "+state.streak);
+  renderAll();
+}
+
+function bumpRing(k){
+  const inc={ringMind:10,ringBody:15,ringBuild:1}[k]||1;
+  state.rings[k]=(state.rings[k]||0)+inc;
+  state.rings.date=today;
+  set(LS.rings,state.rings);renderRings();beep(500,60);
+}
+
+function resetProgress(){
+  if(!confirm("Reset all progress? This cannot be undone."))return;
+  Object.values(LS).forEach(k=>{if(k!==LS.apiKey&&k!==LS.name)localStorage.removeItem(k)});
+  state.done=[];state.streak=0;state.last="";state.xp=0;state.checkins=[];
+  state.rings={ringMind:0,ringBody:0,ringBuild:0,date:today};state.chat=[];
+  renderAll();toast("Progress reset");closeModal("settingsModal");
+}
+
+/* ---------- SETTINGS ---------- */
+function showApiStatus(){
+  const el=$("#apiKeyStatus");
+  el.innerHTML=state.apiKey?
+    '<span class="status-ok">✓ API key set</span>':
+    '<span class="status-no">✗ No key set — AI Coach disabled</span>';
+}
+$("#settingsBtn").onclick=()=>{
+  $("#apiKeyInput").value=state.apiKey;
+  $("#nameInput").value=state.name;
+  showApiStatus();openModal("settingsModal");
+};
+$("#saveSettings").onclick=()=>{
+  state.apiKey=$("#apiKeyInput").value.trim();
+  state.name=$("#nameInput").value.trim()||"Vyom Thakur";
+  set(LS.apiKey,state.apiKey);set(LS.name,state.name);
+  toast("Settings saved");closeModal("settingsModal");renderAll();
+};
+$("#resetBtn").onclick=resetProgress;
+
+/* ---------- AI COACH ---------- */
+function renderChat(){
+  const c=$("#chat");c.innerHTML="";
+  state.chat.forEach(m=>{
+    const d=document.createElement("div");
+    d.className="msg "+m.role;d.textContent=m.text;c.appendChild(d);
+  });
+  c.scrollTop=c.scrollHeight;
+}
+function aiWarn(){
+  const w=$("#aiWarn");
+  if(!state.apiKey){
+    w.innerHTML=`<div class="warn">No API key set. <a href="#" id="goSettings">Open Settings</a> to add your Anthropic key.</div>`;
+    $("#goSettings").onclick=e=>{e.preventDefault();closeModal("aiModal");$("#settingsBtn").click()};
+  }else w.innerHTML="";
+}
+$("#aiBtn").onclick=()=>{aiWarn();renderChat();openModal("aiModal");setTimeout(()=>$("#aiInput").focus(),100)};
+$("#clearChat").onclick=()=>{state.chat=[];set(LS.chat,state.chat);renderChat()};
+
+async function sendChat(){
+  const input=$("#aiInput"),text=input.value.trim();
+  if(!text)return;
+  if(!state.apiKey){toast("Set your API key first");return}
+  state.chat.push({role:"you",text});input.value="";renderChat();
+  state.chat.push({role:"sys",text:"Thinking..."});renderChat();
+  try{
+    const messages=state.chat
+      .filter(m=>m.role==="you"||m.role==="bot")
+      .map(m=>({role:m.role==="you"?"user":"assistant",content:m.text}));
+    const res=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{
+        "content-type":"application/json",
+        "x-api-key":state.apiKey,
+        "anthropic-version":"2023-06-01",
+        "anthropic-dangerous-direct-browser-access":"true"
+      },
+      body:JSON.stringify({
+        model:"claude-haiku-4-5-20251001",
+        max_tokens:512,
+        system:"You are a no-nonsense personal coach for Vyom Thakur, who is building his empire through the 22-stage Vyom Empire system. Reply tight, direct, encouraging. No fluff.",
+        messages
+      })
+    });
+    const data=await res.json();
+    state.chat.pop();
+    if(data.error){state.chat.push({role:"sys",text:"Error: "+data.error.message});}
+    else{
+      const reply=(data.content&&data.content[0]&&data.content[0].text)||"(no response)";
+      state.chat.push({role:"bot",text:reply});
+    }
+  }catch(e){
+    state.chat.pop();
+    state.chat.push({role:"sys",text:"Network error: "+e.message});
+  }
+  set(LS.chat,state.chat);renderChat();
+}
+$("#sendChat").onclick=sendChat;
+$("#aiInput").addEventListener("keydown",e=>{if(e.key==="Enter")sendChat()});
+
+/* ---------- POMODORO ---------- */
+let pomoT=25*60,pomoTimer=null;
+function pomoUpd(){
+  const m=String(Math.floor(pomoT/60)).padStart(2,"0");
+  const s=String(pomoT%60).padStart(2,"0");
+  $("#pomoTime").textContent=m+":"+s;
+}
+function pomoTick(){
+  pomoT--;pomoUpd();
+  if(pomoT<=0){clearInterval(pomoTimer);pomoTimer=null;beep(1000,300);confetti();toast("Pomodoro complete!");pomoT=25*60;pomoUpd()}
+}
+$("#pomoBtn").onclick=()=>{pomoUpd();openModal("pomoModal")};
+$("#pomoStart").onclick=()=>{
+  if(pomoTimer){clearInterval(pomoTimer);pomoTimer=null;$("#pomoStart").textContent="Start"}
+  else{pomoTimer=setInterval(pomoTick,1000);$("#pomoStart").textContent="Pause"}
+};
+$("#pomoReset").onclick=()=>{clearInterval(pomoTimer);pomoTimer=null;pomoT=25*60;pomoUpd();$("#pomoStart").textContent="Start"};
+$("#pomoBreak").onclick=()=>{clearInterval(pomoTimer);pomoTimer=null;pomoT=5*60;pomoUpd();$("#pomoStart").textContent="Start"};
+
+/* ---------- WEEKLY REVIEW ---------- */
+$("#reviewBtn").onclick=()=>{
+  const r=get(LS.reviews,{});const k="rv_"+today;
+  $("#rvWins").value=r[k]?.wins||"";
+  $("#rvLesson").value=r[k]?.lesson||"";
+  $("#rvNext").value=r[k]?.next||"";
+  openModal("reviewModal");
+};
+$("#rvSave").onclick=()=>{
+  const r=get(LS.reviews,{});
+  r["rv_"+today]={wins:$("#rvWins").value,lesson:$("#rvLesson").value,next:$("#rvNext").value};
+  set(LS.reviews,r);state.xp+=25;set(LS.xp,state.xp);
+  beep(700);toast("Review saved · +25 XP");closeModal("reviewModal");renderAll();
+};
+
+/* ---------- SHARE CARD ---------- */
+$("#shareBtn").onclick=()=>{
+  const txt=`🏛️ VYOM EMPIRE — Day Report
+————————————
+👤 ${state.name}
+✨ Level ${level(state.xp)} · ${state.xp} XP
+🔥 Streak: ${state.streak} days
+✅ Stages cleared: ${state.done.length}/22
+
+Forge the legend. Build the empire.
+#VyomEmpire #BuildInPublic`;
+  $("#shareText").textContent=txt;openModal("shareModal");
+};
+$("#copyShare").onclick=async()=>{
+  try{await navigator.clipboard.writeText($("#shareText").textContent);toast("Copied!")}
+  catch(e){toast("Copy failed — select & copy manually")}
+};
+
+/* ---------- CHECK-IN + RINGS ---------- */
+$("#checkinBtn").onclick=checkIn;
+$$("button[data-ring]").forEach(b=>b.onclick=()=>bumpRing(b.dataset.ring));
+
+/* ---------- MODAL CLOSE + KEYBOARD ---------- */
+$$("[data-close]").forEach(b=>b.onclick=e=>{
+  e.target.closest(".modal").classList.remove("open");
+});
+$$(".modal").forEach(m=>m.addEventListener("click",e=>{if(e.target===m)m.classList.remove("open")}));
+addEventListener("keydown",e=>{
+  if(e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA")return;
+  if(e.key==="Escape")$$(".modal.open").forEach(m=>m.classList.remove("open"));
+  if(e.key==="p"||e.key==="P")$("#pomoBtn").click();
+  if(e.key==="w"||e.key==="W")$("#reviewBtn").click();
+  if(e.key==="s"||e.key==="S")$("#shareBtn").click();
+  if(e.key==="a"||e.key==="A")$("#aiBtn").click();
+  if(e.key===",")$("#settingsBtn").click();
+});
+
+/* ---------- BOOT ---------- */
+renderAll();
+</script>
+</body>
+</html>
