@@ -354,3 +354,172 @@
     <div class="section-h"><span>The 22 Stages</span><span class="count" id="stageProgress">0/22</span></div>
     <div class="grid" id="stages"></div>
   </section>
+
+  <!-- REVENUE MILESTONES -->
+  <section class="section">
+    <div class="section-h"><span>Revenue Milestones</span></div>
+    <div class="card"><div class="milestones" id="milestones"></div></div>
+  </section>
+
+  <!-- SKILL MAP -->
+  <section class="section">
+    <div class="section-h"><span>Skill Dependency Map</span></div>
+    <div class="card"><div class="canvas-wrap"><canvas id="skillCanvas"></canvas></div></div>
+  </section>
+
+  <!-- HOLO CARD -->
+  <section class="section">
+    <div class="section-h"><span>Empire Card</span></div>
+    <div class="holo" id="holoCard">
+      <div class="row">
+        <div>
+          <div class="meta">EMPIRE PASS &middot; <span id="holoLvl">LVL 1</span></div>
+          <h2>Vyom Thakur</h2>
+          <div class="meta" id="holoStat">0 STEPS &middot; 0 XP &middot; 0 DAYS</div>
+        </div>
+        <svg width="56" height="56"><use href="#ve-logo"/></svg>
+      </div>
+      <div class="row" style="margin-top:14px">
+        <button class="btn ghost" id="shareBtn">Share Card</button>
+        <button class="btn cyan" id="pomoBtn">Pomodoro</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ACHIEVEMENTS -->
+  <section class="section">
+    <div class="section-h"><span>Achievements</span></div>
+    <div class="card"><div class="ach-grid" id="achGrid"></div></div>
+  </section>
+
+  <!-- DAILY ROUTINE -->
+  <section class="section">
+    <div class="section-h"><span>Daily Routine</span></div>
+    <div class="card" id="routineCard"></div>
+  </section>
+
+  <!-- QUOTE -->
+  <section class="section">
+    <div class="card" id="quoteCard">
+      <div class="quote" id="quoteText"></div>
+      <div class="quote-author" id="quoteAuth"></div>
+    </div>
+  </section>
+
+  <!-- EMPIRE RULES -->
+  <section class="section">
+    <div class="section-h"><span>Empire Rules</span></div>
+    <div class="card"><ul class="rules" id="rulesList"></ul></div>
+  </section>
+
+  <!-- WEEKLY REVIEW BUTTON -->
+  <section class="section">
+    <div class="card" style="text-align:center">
+      <h3>Weekly Review</h3>
+      <p>Reflect every Sunday. Audit the week. Plan the next.</p>
+      <button class="btn" id="reviewBtn" style="margin-top:10px">Start Review</button>
+    </div>
+  </section>
+
+  <p style="text-align:center;color:var(--muted);font-size:11px;margin-top:24px;letter-spacing:2px">
+    SHORTCUTS &middot; P pomo &middot; W review &middot; S share &middot; A AI &middot; , settings
+  </p>
+</main>
+
+<!-- MODALS -->
+<div class="modal" id="settingsModal">
+  <div class="modal-card">
+    <div class="modal-h"><h2>Settings</h2><button class="close" data-close>&times;</button></div>
+    <div class="field">
+      <label>Anthropic API Key</label>
+      <input type="password" id="apiKeyInput" placeholder="sk-ant-..." autocomplete="off"/>
+      <div style="margin-top:6px" id="apiKeyStatus"></div>
+    </div>
+    <div class="field">
+      <label>Display Name</label>
+      <input type="text" id="nameInput" placeholder="Vyom Thakur"/>
+    </div>
+    <div class="row" style="display:flex;gap:8px;margin-top:14px">
+      <button class="btn ghost" id="resetBtn">Reset Progress</button>
+      <button class="btn" id="saveSettings" style="margin-left:auto">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="aiModal">
+  <div class="modal-card">
+    <div class="modal-h"><h2>AI Coach</h2><button class="close" data-close>&times;</button></div>
+    <div id="aiWarn"></div>
+    <div class="chat" id="chat"></div>
+    <div class="field" style="margin:0">
+      <input type="text" id="aiInput" placeholder="Ask your coach anything..."/>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <button class="btn ghost" id="clearChat">Clear</button>
+      <button class="btn cyan" id="sendChat" style="margin-left:auto">Send</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="pomoModal">
+  <div class="modal-card">
+    <div class="modal-h"><h2>Pomodoro</h2><button class="close" data-close>&times;</button></div>
+    <div class="pomo-time" id="pomoTime">25:00</div>
+    <div class="pomo-controls">
+      <button class="btn ghost" id="pomoReset">Reset</button>
+      <button class="btn" id="pomoStart">Start</button>
+      <button class="btn cyan" id="pomoBreak">5m Break</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="reviewModal">
+  <div class="modal-card">
+    <div class="modal-h"><h2>Weekly Review</h2><button class="close" data-close>&times;</button></div>
+    <div class="field"><label>3 Wins this week</label><textarea id="rvWins" rows="3"></textarea></div>
+    <div class="field"><label>1 Lesson learned</label><textarea id="rvLesson" rows="2"></textarea></div>
+    <div class="field"><label>Focus for next week</label><textarea id="rvNext" rows="2"></textarea></div>
+    <button class="btn" id="rvSave" style="margin-top:10px;width:100%">Save Review</button>
+  </div>
+</div>
+
+<div class="modal" id="shareModal">
+  <div class="modal-card" style="text-align:center">
+    <div class="modal-h"><h2>Share Empire Card</h2><button class="close" data-close>&times;</button></div>
+    <div id="shareText" style="background:rgba(0,0,0,.4);padding:14px;border-radius:12px;font-size:13px;line-height:1.6;text-align:left;white-space:pre-wrap"></div>
+    <button class="btn cyan" id="copyShare" style="margin-top:14px">Copy to Clipboard</button>
+  </div>
+</div>
+
+<canvas id="confetti"></canvas>
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+
+/* ---------- DATA ---------- */
+const STAGES = [
+  {p:1,t:"Mindset Reset",d:"Kill victim mode. Adopt builder identity. Write your manifesto."},
+  {p:1,t:"Daily Routine Mastery",d:"Wake 5:30. Sleep 10:30. Lock the rhythm for 7 days."},
+  {p:1,t:"Health Foundation",d:"45m training + 3L water + clean nutrition. Body is the engine."},
+  {p:1,t:"Reading Habit",d:"30m daily reading. Books on craft, money, mind."},
+  {p:1,t:"Skill Identification",d:"Pick one skill that compounds. Write 5-year vision."},
+  {p:1,t:"Time Audit",d:"Log every hour for 3 days. Cut all leaks ruthlessly."},
+  {p:1,t:"Productivity System",d:"One inbox, one calendar, one task list. No more chaos."},
+  {p:1,t:"Financial Literacy",d:"Track every rupee. Read one finance book this week."},
+  {p:1,t:"Communication Skills",d:"Speak clearly. Write daily. Record yourself once."},
+  {p:1,t:"Network Building",d:"DM 3 people in your field this week. Add value first."},
+  {p:1,t:"Personal Brand",d:"Lock your handle. Define your one-line positioning."},
+  {p:1,t:"First Project Launch",d:"Ship something public in 14 days. Done > perfect."},
+
+  {p:2,t:"Advanced Skill Stack",d:"Stack 2 high-leverage skills around your core craft."},
+  {p:2,t:"Income Stream #1",d:"First paying customer. Even ₹500. Validate the offer."},
+  {p:2,t:"Content Engine",d:"Post 3x/week. Same niche. 90 days minimum."},
+  {p:2,t:"Audience Growth",d:"Reach 1,000 true followers. Quality > vanity."},
+  {p:2,t:"Sales Mastery",d:"Master one sales script. Close 3 deals this month."},
+  {p:2,t:"Income Stream #2",d:"Add a second uncorrelated revenue line."},
+  {p:2,t:"System Automation",d:"Document SOPs. Automate every repeated task."},
+  {p:2,t:"Team Building",d:"Hire your first VA or freelancer. Buy back time."},
+  {p:2,t:"Empire Scaling",d:"Cross ₹1L/mo recurring. Reinvest 50% into growth."},
+  {p:2,t:"Legacy Building",d:"Teach what you learned. Lift others. Compound forever."}
+];
